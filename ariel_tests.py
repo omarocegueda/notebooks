@@ -18,10 +18,12 @@ from dipy.align.metrics import CCMetric
 from dipy.align.imwarp import SymmetricDiffeomorphicRegistration
 from scipy.ndimage.morphology import binary_dilation
 
-import mayavi
-import mayavi.mlab as mlab
-from tvtk.tools import visual
-from tvtk.api import tvtk
+use_mayavi = False
+if use_mayavi:
+    import mayavi
+    import mayavi.mlab as mlab
+    from tvtk.tools import visual
+    from tvtk.api import tvtk
 
 
 ni, gtab = dpd.read_stanford_hardi()
@@ -68,16 +70,17 @@ structure = np.zeros((3,3,3))
 structure[:3,1,1] = 1
 dilated = binary_dilation(midsag_data, structure)
 
-# Show the actual voxels that form the mask
-X, Y, Z = [],[],[]
-for x in range(dilated.shape[0]):
-    for y in range(dilated.shape[1]):
-        for z in range(dilated.shape[2]):
-            if dilated[x,y,z]:
-                X.append(x)
-                Y.append(y)
-                Z.append(z)                
-mlab.points3d(X,Y,Z, color=(1,1,1), scale_factor=0.9)
+if use_mayavi:
+    # Show the actual voxels that form the mask
+    X, Y, Z = [],[],[]
+    for x in range(dilated.shape[0]):
+        for y in range(dilated.shape[1]):
+            for z in range(dilated.shape[2]):
+                if dilated[x,y,z]:
+                    X.append(x)
+                    Y.append(y)
+                    Z.append(z)                
+    mlab.points3d(X,Y,Z, color=(1,1,1), scale_factor=0.9)
 
 # Do the same process with the dilated mask
 warped_midsag = mapping.transform_inverse(dilated)
